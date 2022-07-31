@@ -1,69 +1,69 @@
-const ytdl = require("ytdl-core");
-const ytSearch = require("yt-search");
-const {
-	AudioPlayerStatus,
-	StreamType,
-	createAudioPlayer,
-	createAudioResource,
-	joinVoiceChannel,
-	getVoiceConnection,
-} = require('@discordjs/voice');
-
 module.exports = {
     name: "play",
     description: "Tocar musga",
     async execute(message, args){
+        const fs=require("fs");
+        const mp3=require("youtube-mp3-downloader");
+        const ffmpeg=require("ffmpeg-static");
+        const yd=new mp3({
+            ffmpegPath:ffmpeg,
+            outputPath:"./",
+            youtubeVideoQuality:"highestaudio"
+        });
+        const {
+            AudioPlayerStatus,
+            StreamType,
+            createAudioPlayer,
+            createAudioResource,
+            joinVoiceChannel,
+            getVoiceConnection,
+        } = require('@discordjs/voice');
 
-        try {
-            const voiceChannel = message.member.voice.channel;
+        const voiceChannel = message.member.voice.channel;
 
-            if(!voiceChannel) return message.channel.send("Você precisa estar conectado a um canal de voz");
-            
-            const userPermissions = voiceChannel.permissionsFor(message.client.user);
-            if(!userPermissions.has("CONNECT") || !userPermissions.has("SPEAK"))
-                return message.channel.send("Você não tem as permissões necessárias");
+        if(!voiceChannel) return message.channel.send("Você precisa estar conectado a um canal de voz");
+        
+        const userPermissions = voiceChannel.permissionsFor(message.client.user);
+        if(!userPermissions.has("CONNECT") || !userPermissions.has("SPEAK"))
+            return message.channel.send("Você não tem as permissões necessárias");
 
-            if(!args.length) return message.channel.send("Sim aí vc nn disse qual a musga pra eu tocar né meu parceiro...");
+        if(!args.length) return message.channel.send("Sim aí vc nn disse qual a musga pra eu tocar né meu parceiro...");
 
-            const connection = joinVoiceChannel({
-                channelId: message.member.voice.channel.id,
-                guildId: message.guild.id,
-                adapterCreator: message.guild.voiceAdapterCreator
-            });
+        const connection = joinVoiceChannel({
+            channelId: message.member.voice.channel.id,
+            guildId: message.guild.id,
+            adapterCreator: message.guild.voiceAdapterCreator
+        });
 
-            const videoFinder = async(query) => {
-                const videoResult = await ytSearch(query);
+        const ytSearch = require("yt-search");
 
-                console.log(`${videoResult.videos[0].title}`);
+        const videoFinder = async(query) => {
+            const videoResult = await ytSearch(query);
 
-                return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
-            }
+            console.log(`${videoResult.videos[0].title}`);
 
-            const video = await videoFinder(args.join(" "));
-            
-            const player = createAudioPlayer();
-
-
-            if(video){
-                const stream = ytdl(video.url, {filter: "audioonly"});
-            
-                const audioResource = createAudioResource(stream, {inlineVolume : true});
-                connection.subscribe(player);
-
-                player.play(audioResource, {seek: 0, volume: 1});
-
-                play.on("error", () => {
-                    console.error("error", error);
-                });
-
-                await message.reply(`Tocando: ***${video.title}***`);
-            }
-            else{
-                message.channel.send("O video não foi encontrado");
-            }
+            return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
         }
-        catch(e){
-            console.log(e);
-        }
+
+        const video = await videoFinder(args.join(" "));
+        let url = video.url;
+        url = url.substring(url.indexOf('=') + 1);
+
+        yd.download(url, "song.mp3");
+
+        yd.on("error", function(error){
+            message.channel.send("Erro");
+            return;
+        });
+
+        const player = createAudioPlayer();
+        connection.subscribe(player);
+
+        yd.on("finished", function(err, data){
+            message.reply(`Tocando: ***${video.title}***`);
+
+            const audioResource = createAudioResource("./song.mp3");
+            player.play(audioResource, {seek: 0, volume: 1});
+        });
     }
 }
