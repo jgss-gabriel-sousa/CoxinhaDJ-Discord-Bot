@@ -1,5 +1,8 @@
 const { Client, Intents, DiscordAPIError, Collection } = require('discord.js');
-const { prefix, token } = require('./config.json');
+const { prefix } = require('./config.json');
+require('dotenv').config();
+
+const token = process.env.TOKEN;
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, 'GUILD_VOICE_STATES'] });
 
