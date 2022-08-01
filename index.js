@@ -44,7 +44,11 @@ client.on("messageCreate", message =>{
 client.login(token);
 
 // Auto Caller
-var http = require("http");
-setInterval(function() {
-    http.get(process.env.HEROKU_APP);
-}, 600000);
+try {
+    var http = require("http");
+    setInterval(function() {
+        http.get(process.env.HEROKU_APP);
+    }, 600000);
+} catch (error) {
+    console.log(error);
+}
