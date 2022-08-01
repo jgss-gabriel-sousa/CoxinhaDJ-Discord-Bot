@@ -2,9 +2,9 @@
   "name": "coxinhadj-discord-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node main.js"
+    "start": "node index.js"
   },
   "author": "JGSS-Gabriel-Sousa",
   "license": "ISC",
