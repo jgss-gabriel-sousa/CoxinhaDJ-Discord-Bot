@@ -49,6 +49,8 @@ module.exports = {
         let url = video.url;
         url = url.substring(url.indexOf('=') + 1);
 
+        message.reply(`Música Encontrada: ***${video.title}***`);
+
         yd.download(url, "song.mp3");
 
         yd.on("error", function(error){
@@ -60,8 +62,6 @@ module.exports = {
         connection.subscribe(player);
 
         yd.on("finished", function(err, data){
-            message.reply(`Tocando: ***${video.title}***`);
-
             const audioResource = createAudioResource("./song.mp3");
             player.play(audioResource, {seek: 0, volume: 1});
         });
