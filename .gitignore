@@ -128,3 +128,5 @@ dist
 
 # others
 *.mp3
+*.bat
+*.exe
